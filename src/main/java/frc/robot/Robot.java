@@ -7,10 +7,14 @@
 
 package frc.robot;
 
+import com.ctre.phoenix.motorcontrol.ControlMode;
+import com.ctre.phoenix.motorcontrol.can.VictorSPX;
 import com.ctre.phoenix.motorcontrol.can.WPI_TalonSRX;
-import com.ctre.phoenix.motorcontrol.can.WPI_VictorSPX;
+//import com.ctre.phoenix.motorcontrol.can.WPI_VictorSPX;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.GenericHID.Hand;
+import edu.wpi.first.wpilibj.Compressor;
+import edu.wpi.first.wpilibj.DoubleSolenoid;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.drive.MecanumDrive;
 
@@ -20,41 +24,55 @@ import edu.wpi.first.wpilibj.drive.MecanumDrive;
  */
 public class Robot extends TimedRobot {
 // drive motor controler can id's
-  private static final int kFrontLeftChannel = 2;
+  private static final int kFrontLeftChannel = 5;
   private static final int kRearLeftChannel = 3;
-  private static final int kFrontRightChannel = 5;
-  private static final int kRearRightChannel = 6;
+  private static final int kFrontRightChannel = 6;
+  private static final int kRearRightChannel = 2;
 
   // shooter motoro controller can id's
-  private static final int kLeftShooterID = 7;
-  private static final int kRightShooterID = 8;
+  private static final int kLeftShooterID = 5;
+  private static final int kRightShooterID = 7;
 
   // lift motor controler can id
-  private static final int kLiftMotorID = 9;
+  private static final int kLiftMotorID = 1;
 
+  private static final int kPCMCanID = 0;
+  private static final int kCollectorForwardPort = 0;
+  private static final int kCollectorBackwardPort = 1;
 
-  private static final int kJoystickChannel = 0;
+  private static final int kDriverXBoxPort = 0;
+  private static final int kOperXBoxPort = 1;
 
   private MecanumDrive m_robotDrive;
-  private XboxController m_stick;
 
-  private WPI_VictorSPX m_LeftShooter;
-  private WPI_VictorSPX m_RightShooter;
-  private WPI_VictorSPX m_liftMotor;
+  private XboxController m_Driver;
+  private XboxController m_Operator;
+
+  private VictorSPX m_LeftShooter = new VictorSPX(kLeftShooterID);
+  private VictorSPX m_RightShooter = new VictorSPX(kRightShooterID);
+  private VictorSPX m_liftMotor = new VictorSPX(kLiftMotorID);
+
+  private double motorSpeed;
+
+  
 
   @Override
   public void robotInit() {
 
     // create the talonSRX motor controller objects
-    WPI_TalonSRX frontLeft = new WPI_TalonSRX(kFrontLeftChannel);
-    WPI_TalonSRX rearLeft = new WPI_TalonSRX(kRearLeftChannel);
-    WPI_TalonSRX frontRight = new WPI_TalonSRX(kFrontRightChannel);
-    WPI_TalonSRX rearRight = new WPI_TalonSRX(kRearRightChannel);
 
-    // create the victorSPX motor controller objects
-    WPI_VictorSPX m_LeftShooter = new WPI_VictorSPX(kLeftShooterID);
-    WPI_VictorSPX m_RightShooter = new WPI_VictorSPX(kRightShooterID);
-    WPI_VictorSPX m_liftMotor = new WPI_VictorSPX(kLiftMotorID);
+    final Compressor m_compressor = new Compressor(kPCMCanID);
+    final DoubleSolenoid m_leftCollector = new DoubleSolenoid(kCollectorForwardPort, kCollectorBackwardPort);
+    
+    final WPI_TalonSRX frontLeft = new WPI_TalonSRX(kFrontLeftChannel);
+    final WPI_TalonSRX rearLeft = new WPI_TalonSRX(kRearLeftChannel);
+    final WPI_TalonSRX frontRight = new WPI_TalonSRX(kFrontRightChannel);
+    final WPI_TalonSRX rearRight = new WPI_TalonSRX(kRearRightChannel);
+
+    //create the victorSPX motor controller objects
+    final VictorSPX m_LeftShooter = new VictorSPX(kLeftShooterID);
+    final VictorSPX m_RightShooter = new VictorSPX(kRightShooterID);
+    final VictorSPX m_liftMotor = new VictorSPX(kLiftMotorID);
  
 
     // Invert the left side motors.
@@ -63,21 +81,37 @@ public class Robot extends TimedRobot {
     //rearLeft.setInverted(true);
     m_LeftShooter.setInverted(true);
 
+    
+
+
+
+    //m_RightShooter.follow(m_LeftShooter);
+
     //m_robotDrive = new MecanumDrive(frontLeft, rearLeft, frontRight, rearRight);
     m_robotDrive = new MecanumDrive(frontLeft, rearLeft, frontRight, rearRight);
-    m_stick = new XboxController(kJoystickChannel);
+    m_Driver = new XboxController(kDriverXBoxPort);
+    m_Operator = new XboxController(kOperXBoxPort);
 
-    m_LeftShooter.set(0);
-    m_RightShooter.set(0);
-    m_liftMotor.set(0);
+    m_LeftShooter.set(ControlMode.PercentOutput,0);
+    m_RightShooter.set(ControlMode.PercentOutput,0);
+    m_liftMotor.set(ControlMode.PercentOutput,0);
+
+    System.out.println("Set motors to zero");
   }
 
   @Override
   public void teleopPeriodic() {
 
-    m_robotDrive.driveCartesian(m_stick.getX(Hand.kLeft),
-                                m_stick.getY(Hand.kLeft) , 
-                                m_stick.getX(Hand.kRight));
+    m_robotDrive.driveCartesian(m_Driver.getX(Hand.kLeft),
+                                m_Driver.getY(Hand.kLeft) , 
+                                m_Driver.getX(Hand.kRight));
+
+    motorSpeed = m_Operator.getTriggerAxis(Hand.kLeft) * -1;
+
+    m_LeftShooter.set(ControlMode.PercentOutput,motorSpeed);
+    //m_RightShooter.set(ControlMode.PercentOutput,motorSpeed);
+    m_liftMotor.set(ControlMode.PercentOutput,motorSpeed);
+                                
   }
   @Override
   public void testInit(){
@@ -90,10 +124,14 @@ public class Robot extends TimedRobot {
 
   @Override
   public void testPeriodic(){
-    // Called every loop while in drivers station set to test mode
-    m_LeftShooter.set(m_stick.getTriggerAxis(Hand.kLeft));
-    m_RightShooter.set(m_stick.getTriggerAxis(Hand.kLeft));
-    m_liftMotor.set(m_stick.getTriggerAxis(Hand.kLeft));
+    motorSpeed = m_Operator.getTriggerAxis(Hand.kLeft);
+    System.out.println("Trigger =" + m_Operator);
+
+    m_LeftShooter.set(ControlMode.PercentOutput,motorSpeed); // <-- Right should follow what the left does.
+    m_RightShooter.set(ControlMode.PercentOutput, motorSpeed);
+    m_liftMotor.set(ControlMode.PercentOutput,motorSpeed);
+
+
     
   }
 }
