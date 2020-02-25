@@ -12,6 +12,7 @@ import com.ctre.phoenix.motorcontrol.can.VictorSPX;
 import com.ctre.phoenix.motorcontrol.can.WPI_TalonSRX;
 //import com.ctre.phoenix.motorcontrol.can.WPI_VictorSPX;
 import edu.wpi.first.wpilibj.XboxController;
+import edu.wpi.first.wpilibj.DoubleSolenoid.Value;
 import edu.wpi.first.wpilibj.GenericHID.Hand;
 import edu.wpi.first.wpilibj.Compressor;
 import edu.wpi.first.wpilibj.DoubleSolenoid;
@@ -23,17 +24,17 @@ import edu.wpi.first.wpilibj.drive.MecanumDrive;
  * class.
  */
 public class Robot extends TimedRobot {
-// drive motor controler can id's
+// drive motor controller can id's
   private static final int kFrontLeftChannel = 5;
   private static final int kRearLeftChannel = 3;
   private static final int kFrontRightChannel = 6;
   private static final int kRearRightChannel = 2;
 
-  // shooter motoro controller can id's
+  // shooter motor controller can id's
   private static final int kLeftShooterID = 5;
   private static final int kRightShooterID = 7;
 
-  // lift motor controler can id
+  // lift motor controller can id
   private static final int kLiftMotorID = 1;
 
   private static final int kPCMCanID = 0;
@@ -55,15 +56,15 @@ public class Robot extends TimedRobot {
   private double motorSpeed;
 
   
+  final Compressor m_compressor = new Compressor(kPCMCanID);
+  final DoubleSolenoid m_CollectorArm  = new DoubleSolenoid(kCollectorForwardPort, kCollectorBackwardPort);
+  
 
   @Override
   public void robotInit() {
 
     // create the talonSRX motor controller objects
 
-    final Compressor m_compressor = new Compressor(kPCMCanID);
-    final DoubleSolenoid m_leftCollector = new DoubleSolenoid(kCollectorForwardPort, kCollectorBackwardPort);
-    
     final WPI_TalonSRX frontLeft = new WPI_TalonSRX(kFrontLeftChannel);
     final WPI_TalonSRX rearLeft = new WPI_TalonSRX(kRearLeftChannel);
     final WPI_TalonSRX frontRight = new WPI_TalonSRX(kFrontRightChannel);
@@ -82,7 +83,7 @@ public class Robot extends TimedRobot {
     m_LeftShooter.setInverted(true);
 
     
-
+    m_compressor.enabled();
 
 
     //m_RightShooter.follow(m_LeftShooter);
@@ -124,14 +125,25 @@ public class Robot extends TimedRobot {
 
   @Override
   public void testPeriodic(){
-    motorSpeed = m_Operator.getTriggerAxis(Hand.kLeft);
+    /* motorSpeed = m_Operator.getTriggerAxis(Hand.kLeft);
     System.out.println("Trigger =" + m_Operator);
 
     m_LeftShooter.set(ControlMode.PercentOutput,motorSpeed); // <-- Right should follow what the left does.
     m_RightShooter.set(ControlMode.PercentOutput, motorSpeed);
     m_liftMotor.set(ControlMode.PercentOutput,motorSpeed);
+    */
 
-
+    if(m_Operator.getYButtonPressed() == true){
+      m_CollectorArm.set(Value.kForward);
+     
+    }
     
-  }
+    if(m_Operator.getAButtonPressed() == true){
+      m_CollectorArm.set(Value.kReverse);
+    }
+
+
+    } // end testPeriodic()
+
+  // create medthoids here to do stuff.  
 }
