@@ -9,8 +9,9 @@ package frc.robot;
 
 import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.can.VictorSPX;
+import edu.wpi.first.wpilibj.PWMVictorSPX;
 import com.ctre.phoenix.motorcontrol.can.WPI_TalonSRX;
-//import com.ctre.phoenix.motorcontrol.can.WPI_VictorSPX;
+//import com.ctre.phoenix.motorcontrol.VictorSPX;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.DoubleSolenoid.Value;
 import edu.wpi.first.wpilibj.GenericHID.Hand;
@@ -35,7 +36,7 @@ public class Robot extends TimedRobot {
   private static final int kRightShooterID = 7;
 
   // lift motor controller can id
-  private static final int kLiftMotorID = 1;
+  private static final int kLiftMotorID = 9;
 
   private static final int kPCMCanID = 15;
   private static final int kCollectorForwardPort = 0;
@@ -51,7 +52,7 @@ public class Robot extends TimedRobot {
 
   private VictorSPX m_LeftShooter = new VictorSPX(kLeftShooterID);
   private VictorSPX m_RightShooter = new VictorSPX(kRightShooterID);
-  private VictorSPX m_liftMotor = new VictorSPX(kLiftMotorID);
+  private PWMVictorSPX m_liftMotor = new PWMVictorSPX(kLiftMotorID);
 
   private double motorSpeed;
 
@@ -86,9 +87,10 @@ public class Robot extends TimedRobot {
     m_compressor.enabled();
 
 
-    //m_RightShooter.follow(m_LeftShooter);
+    m_RightShooter.follow(m_LeftShooter);
 
     //m_robotDrive = new MecanumDrive(frontLeft, rearLeft, frontRight, rearRight);
+
     m_robotDrive = new MecanumDrive(frontLeft, rearLeft, frontRight, rearRight);
     m_Driver = new XboxController(kDriverXBoxPort);
     m_Operator = new XboxController(kOperXBoxPort);
@@ -98,7 +100,7 @@ public class Robot extends TimedRobot {
     m_liftMotor.set(ControlMode.PercentOutput,0);
 
     System.out.println("Set motors to zero");
-  }
+  } // *********************** robotInit() *************************
 
   @Override
   public void teleopPeriodic() {
@@ -111,9 +113,11 @@ public class Robot extends TimedRobot {
 
     m_LeftShooter.set(ControlMode.PercentOutput,motorSpeed);
     //m_RightShooter.set(ControlMode.PercentOutput,motorSpeed);
-    m_liftMotor.set(ControlMode.PercentOutput,motorSpeed);
+    
                                 
-  }
+  }// ********************* End teleopPeriodic ***********************
+
+
   @Override
   public void testInit(){
     // Called at the begining of test mode
@@ -144,8 +148,19 @@ public class Robot extends TimedRobot {
       m_CollectorArm.set(Value.kReverse);
     }
 
+    if(m_Operator.getBumper(Hand.kLeft) == true){
+      m_liftMotor.set(0.5);
+    } else {
+      m_liftMotor.stopMotor();
+    }
 
-    } // end testPeriodic()
+    motorSpeed = m_Operator.getTriggerAxis(Hand.kRight) * -1;
+
+    m_LeftShooter.set(ControlMode.PercentOutput,motorSpeed);
+    //m_RightShooter.set(ControlMode.PercentOutput,motorSpeed);
+
+
+    } // ********************** end testPeriodic() *********************
 
   // create medthoids here to do stuff.  
 }
