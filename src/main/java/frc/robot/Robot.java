@@ -32,7 +32,7 @@ public class Robot extends TimedRobot {
   private static final int kRearRightChannel = 2;
 
   // shooter motor controller can id's
-  private static final int kLeftShooterID = 5;
+  private static final int kLeftShooterID = 1;
   private static final int kRightShooterID = 7;
 
   // lift motor controller can id
@@ -52,6 +52,7 @@ public class Robot extends TimedRobot {
 
   private VictorSPX m_LeftShooter = new VictorSPX(kLeftShooterID);
   private VictorSPX m_RightShooter = new VictorSPX(kRightShooterID);
+
   private PWMVictorSPX m_liftMotor = new PWMVictorSPX(kLiftMotorID);
 
   private double motorSpeed;
@@ -87,7 +88,7 @@ public class Robot extends TimedRobot {
     m_compressor.enabled();
 
 
-    m_RightShooter.follow(m_LeftShooter);
+    
 
     //m_robotDrive = new MecanumDrive(frontLeft, rearLeft, frontRight, rearRight);
 
@@ -124,7 +125,7 @@ public class Robot extends TimedRobot {
 
     // need to invert one of the shooter motors
     
-    
+    m_RightShooter.follow(m_LeftShooter);
   }
 
   @Override
