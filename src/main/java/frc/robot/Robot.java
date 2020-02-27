@@ -37,7 +37,7 @@ public class Robot extends TimedRobot {
   // lift motor controller can id
   private static final int kLiftMotorID = 1;
 
-  private static final int kPCMCanID = 0;
+  private static final int kPCMCanID = 15;
   private static final int kCollectorForwardPort = 0;
   private static final int kCollectorBackwardPort = 1;
 
@@ -56,10 +56,10 @@ public class Robot extends TimedRobot {
   private double motorSpeed;
 
   
-  final Compressor m_compressor = new Compressor(kPCMCanID);
-  final DoubleSolenoid m_CollectorArm  = new DoubleSolenoid(kCollectorForwardPort, kCollectorBackwardPort);
+  final Compressor m_compressor = new Compressor();
+  final DoubleSolenoid m_CollectorArm  = new DoubleSolenoid(kPCMCanID,kCollectorForwardPort, kCollectorBackwardPort);
   
-
+  
   @Override
   public void robotInit() {
 
@@ -134,11 +134,13 @@ public class Robot extends TimedRobot {
     */
 
     if(m_Operator.getYButtonPressed() == true){
+      System.out.println("Y Button Pressed");
       m_CollectorArm.set(Value.kForward);
      
     }
     
     if(m_Operator.getAButtonPressed() == true){
+      System.out.println("X Button Pressed");
       m_CollectorArm.set(Value.kReverse);
     }
 
