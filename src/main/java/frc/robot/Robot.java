@@ -20,6 +20,8 @@ import edu.wpi.first.wpilibj.DoubleSolenoid;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.drive.MecanumDrive;
 
+import frc.robot.limelight;
+
 /**
  * This is a demo program showing how to use Mecanum control with the RobotDrive
  * class.
@@ -61,6 +63,7 @@ public class Robot extends TimedRobot {
   final Compressor m_compressor = new Compressor();
   final DoubleSolenoid m_CollectorArm  = new DoubleSolenoid(kPCMCanID,kCollectorForwardPort, kCollectorBackwardPort);
   
+  final limelight m_limelight = new limelight();
   
   @Override
   public void robotInit() {
@@ -83,12 +86,14 @@ public class Robot extends TimedRobot {
     //frontLeft.setInverted(true);
     //rearLeft.setInverted(true);
     m_LeftShooter.setInverted(true);
+    m_RightShooter.follow(m_LeftShooter);
 
     
     m_compressor.enabled();
 
-
-    
+    m_limelight.setCAMMode(m_limelight.kCamModeVisionProc);
+    m_limelight.setStreamMode(m_limelight.kStreamModePIPMain);
+    m_limelight.setLEDMode(m_limelight.kLedModePipeLineSetting);
 
     //m_robotDrive = new MecanumDrive(frontLeft, rearLeft, frontRight, rearRight);
 
@@ -101,19 +106,39 @@ public class Robot extends TimedRobot {
     m_liftMotor.set(ControlMode.PercentOutput,0);
 
     System.out.println("Set motors to zero");
+
+
   } // *********************** robotInit() *************************
 
   @Override
   public void teleopPeriodic() {
 
-    m_robotDrive.driveCartesian(m_Driver.getX(Hand.kLeft),
-                                m_Driver.getY(Hand.kLeft) , 
-                                m_Driver.getX(Hand.kRight));
+    // Invert the driver controls and set the limelight to not vision processing
+    if (m_Driver.getBumper(Hand.kLeft) == true){
+      m_robotDrive.driveCartesian((m_Driver.getX(Hand.kLeft) * -1),
+                                  m_Driver.getY(Hand.kLeft) , 
+                                  m_Driver.getX(Hand.kRight));
 
+      m_limelight.setStreamMode(m_limelight.kStreamModePIP2nd);
+      m_limelight.setCAMMode(m_limelight.kCamModeDriver);
+      m_limelight.setLEDMode(m_limelight.kLedModeOff);
+    }
+    else 
+    { // Drive it like you stole it  With vision processing
+
+      m_robotDrive.driveCartesian(m_Driver.getX(Hand.kLeft),
+                                  m_Driver.getY(Hand.kLeft) , 
+                                  m_Driver.getX(Hand.kRight));
+
+      m_limelight.setStreamMode(m_limelight.kStreamModePIP2nd);
+      m_limelight.setCAMMode(m_limelight.kCamModeDriver);
+      m_limelight.setLEDMode(m_limelight.kLedModeOff);
+    }
     motorSpeed = m_Operator.getTriggerAxis(Hand.kLeft) * -1;
 
     m_LeftShooter.set(ControlMode.PercentOutput,motorSpeed);
-    //m_RightShooter.set(ControlMode.PercentOutput,motorSpeed);
+
+ 
     
                                 
   }// ********************* End teleopPeriodic ***********************
@@ -150,7 +175,13 @@ public class Robot extends TimedRobot {
     }
 
     if(m_Operator.getBumper(Hand.kLeft) == true){
-      m_liftMotor.set(0.5);
+      m_liftMotor.set(-0.35);
+    } else {
+      m_liftMotor.stopMotor();
+    }
+
+    if(m_Operator.getBumper(Hand.kRight) == true){
+      m_liftMotor.set(0.35);
     } else {
       m_liftMotor.stopMotor();
     }
