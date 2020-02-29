@@ -40,6 +40,9 @@ public class Robot extends TimedRobot {
   // lift motor controller can id
   private static final int kLiftMotorID = 9;
 
+  // collector motor pwm id 
+  private static final int kCollectorPWMPort = 8;
+
   private static final int kPCMCanID = 15;
   private static final int kCollectorForwardPort = 0;
   private static final int kCollectorBackwardPort = 1;
@@ -56,6 +59,7 @@ public class Robot extends TimedRobot {
   private VictorSPX m_RightShooter = new VictorSPX(kRightShooterID);
 
   private PWMVictorSPX m_liftMotor = new PWMVictorSPX(kLiftMotorID);
+  private PWMVictorSPX m_collectorMotor = new PWMVictorSPX(kCollectorPWMPort);
 
   private double motorSpeed;
 
@@ -112,31 +116,60 @@ public class Robot extends TimedRobot {
 
   @Override
   public void teleopPeriodic() {
-
+    
     // Invert the driver controls and set the limelight to not vision processing
+    
     if (m_Driver.getBumper(Hand.kLeft) == true){
-      m_robotDrive.driveCartesian((m_Driver.getX(Hand.kLeft) * -1),
+      //System.out.println("Inverted y speed: ",;
+      System.out.println("Left bumper pressed - Drive backwards$");
+      m_robotDrive.driveCartesian(m_Driver.getX(Hand.kLeft) ,
                                   m_Driver.getY(Hand.kLeft) , 
                                   m_Driver.getX(Hand.kRight));
 
       m_limelight.setStreamMode(m_limelight.kStreamModePIP2nd);
       m_limelight.setCAMMode(m_limelight.kCamModeDriver);
       m_limelight.setLEDMode(m_limelight.kLedModeOff);
-    }
+    } // end if bumper held
     else 
     { // Drive it like you stole it  With vision processing
-
-      m_robotDrive.driveCartesian(m_Driver.getX(Hand.kLeft),
-                                  m_Driver.getY(Hand.kLeft) , 
+      m_robotDrive.driveCartesian(m_Driver.getX(Hand.kLeft) * -1,
+                                  m_Driver.getY(Hand.kLeft), 
                                   m_Driver.getX(Hand.kRight));
 
-      m_limelight.setStreamMode(m_limelight.kStreamModePIP2nd);
-      m_limelight.setCAMMode(m_limelight.kCamModeDriver);
-      m_limelight.setLEDMode(m_limelight.kLedModeOff);
+      m_limelight.setStreamMode(m_limelight.kStreamModePIPMain);
+      m_limelight.setCAMMode(m_limelight.kCamModeVisionProc);
+      m_limelight.setLEDMode(m_limelight.kLedModePipeLineSetting);
     }
+    // Shooter
     motorSpeed = m_Operator.getTriggerAxis(Hand.kLeft) * -1;
+    m_LeftShooter.set(ControlMode.PercentOutput,motorSpeed);
+    if(m_Operator.getBumper(Hand.kLeft) == true){
+      m_liftMotor.set(-0.35);
+    } else {
+      m_liftMotor.stopMotor();
+    }
+
+    // Lift 
+    if(m_Operator.getBumper(Hand.kRight) == true){
+      m_liftMotor.set(0.35);
+    } else {
+      m_liftMotor.stopMotor();
+    }
+
+    motorSpeed = m_Operator.getTriggerAxis(Hand.kRight) * -1;
 
     m_LeftShooter.set(ControlMode.PercentOutput,motorSpeed);
+    //m_RightShooter.set(ControlMode.PercentOutput,motorSpeed);
+
+    if (m_Operator.getXButton() == true){
+      System.out.println("X collector should run");
+      m_collectorMotor.set(-0.25);
+
+    }
+    else{
+      m_collectorMotor.stopMotor();
+    }
+
 
  
     
@@ -155,13 +188,6 @@ public class Robot extends TimedRobot {
 
   @Override
   public void testPeriodic(){
-    /* motorSpeed = m_Operator.getTriggerAxis(Hand.kLeft);
-    System.out.println("Trigger =" + m_Operator);
-
-    m_LeftShooter.set(ControlMode.PercentOutput,motorSpeed); // <-- Right should follow what the left does.
-    m_RightShooter.set(ControlMode.PercentOutput, motorSpeed);
-    m_liftMotor.set(ControlMode.PercentOutput,motorSpeed);
-    */
 
     if(m_Operator.getYButtonPressed() == true){
       System.out.println("Y Button Pressed");
@@ -190,6 +216,16 @@ public class Robot extends TimedRobot {
 
     m_LeftShooter.set(ControlMode.PercentOutput,motorSpeed);
     //m_RightShooter.set(ControlMode.PercentOutput,motorSpeed);
+
+    if (m_Operator.getXButton() == true){
+      System.out.println("X collector should run");
+      m_collectorMotor.set(-0.25);
+
+    }
+    else{
+      m_collectorMotor.stopMotor();
+    }
+
 
 
     } // ********************** end testPeriodic() *********************
