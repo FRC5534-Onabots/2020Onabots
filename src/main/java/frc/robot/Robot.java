@@ -8,6 +8,7 @@
 package frc.robot;
 
 import com.ctre.phoenix.motorcontrol.ControlMode;
+import com.ctre.phoenix.motorcontrol.NeutralMode;
 import com.ctre.phoenix.motorcontrol.can.VictorSPX;
 import edu.wpi.first.wpilibj.PWMVictorSPX;
 import com.ctre.phoenix.motorcontrol.can.WPI_TalonSRX;
@@ -84,6 +85,10 @@ public class Robot extends TimedRobot {
     final VictorSPX m_RightShooter = new VictorSPX(kRightShooterID);
     final VictorSPX m_liftMotor = new VictorSPX(kLiftMotorID);
  
+    frontLeft.setNeutralMode(NeutralMode.Brake);
+    rearLeft.setNeutralMode(NeutralMode.Brake);
+    frontRight.setNeutralMode(NeutralMode.Brake);
+    rearRight.setNeutralMode(NeutralMode.Brake);
 
     // Invert the left side motors.
     // You may need to change or remove this to match your robot.
@@ -131,8 +136,8 @@ public class Robot extends TimedRobot {
     if (m_Driver.getBumper(Hand.kLeft) == true){
       //System.out.println("Inverted y speed: ",;
       System.out.println("Left bumper pressed - Drive backwards$");
-      m_robotDrive.driveCartesian(m_Driver.getX(Hand.kLeft) ,
-                                  m_Driver.getY(Hand.kRight) , 
+      m_robotDrive.driveCartesian(m_Driver.getX(Hand.kRight) ,
+                                  m_Driver.getY(Hand.kLeft) , 
                                   m_Driver.getX(Hand.kLeft));
 
       m_limelight.setStreamMode(m_limelight.kStreamModePIP2nd);
@@ -141,9 +146,9 @@ public class Robot extends TimedRobot {
     } // end if bumper held
     else 
     { // Drive it like you stole it  With vision processing
-      m_robotDrive.driveCartesian(m_Driver.getX(Hand.kLeft)* -1,
-                                   m_Driver.getX(Hand.kRight) * -1,
-                                   m_Driver.getY(Hand.kLeft)* -1);
+      m_robotDrive.driveCartesian(m_Driver.getX(Hand.kRight)* -1,
+                                   m_Driver.getY(Hand.kLeft)* -1,
+                                   m_Driver.getX(Hand.kLeft));
 
       m_limelight.setStreamMode(m_limelight.kStreamModePIPMain);
       m_limelight.setCAMMode(m_limelight.kCamModeVisionProc);
