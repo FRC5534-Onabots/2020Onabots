@@ -113,18 +113,27 @@ public class Robot extends TimedRobot {
 
 
   } // *********************** robotInit() *************************
+  
+  
+  @Override
+  public void teleopInit() {
+    // Set the right shooter to do what the left shooter does, powerwise.
+    m_LeftShooter.set(ControlMode.PercentOutput,motorSpeed);
+    m_RightShooter.follow(m_LeftShooter);
 
+  } // ********************** teleopInit() ************************
+  
+  
   @Override
   public void teleopPeriodic() {
     
     // Invert the driver controls and set the limelight to not vision processing
-    
     if (m_Driver.getBumper(Hand.kLeft) == true){
       //System.out.println("Inverted y speed: ",;
       System.out.println("Left bumper pressed - Drive backwards$");
       m_robotDrive.driveCartesian(m_Driver.getX(Hand.kLeft) ,
-                                  m_Driver.getY(Hand.kLeft) , 
-                                  m_Driver.getX(Hand.kRight));
+                                  m_Driver.getY(Hand.kRight) , 
+                                  m_Driver.getX(Hand.kLeft));
 
       m_limelight.setStreamMode(m_limelight.kStreamModePIP2nd);
       m_limelight.setCAMMode(m_limelight.kCamModeDriver);
@@ -132,15 +141,16 @@ public class Robot extends TimedRobot {
     } // end if bumper held
     else 
     { // Drive it like you stole it  With vision processing
-      m_robotDrive.driveCartesian(m_Driver.getX(Hand.kLeft) * -1,
-                                  m_Driver.getY(Hand.kLeft), 
-                                  m_Driver.getX(Hand.kRight));
+      m_robotDrive.driveCartesian(m_Driver.getX(Hand.kLeft)* -1,
+                                   m_Driver.getX(Hand.kRight) * -1,
+                                   m_Driver.getY(Hand.kLeft)* -1);
 
       m_limelight.setStreamMode(m_limelight.kStreamModePIPMain);
       m_limelight.setCAMMode(m_limelight.kCamModeVisionProc);
       m_limelight.setLEDMode(m_limelight.kLedModePipeLineSetting);
     }
-    // Shooter
+
+    // Shooter - Hooked to Operator left trigger 
     motorSpeed = m_Operator.getTriggerAxis(Hand.kLeft) * -1;
     m_LeftShooter.set(ControlMode.PercentOutput,motorSpeed);
     if(m_Operator.getBumper(Hand.kLeft) == true){
@@ -149,22 +159,28 @@ public class Robot extends TimedRobot {
       m_liftMotor.stopMotor();
     }
 
-    // Lift 
+    // Lift - Hooked to Operator Right and Left Bumper 
     if(m_Operator.getBumper(Hand.kRight) == true){
       m_liftMotor.set(0.35);
-    } else {
+    } 
+    else if (m_Operator.getBumper(Hand.kLeft) == true) {
+      m_liftMotor.set(-0.35); 
+    }
+    else{
       m_liftMotor.stopMotor();
     }
 
     motorSpeed = m_Operator.getTriggerAxis(Hand.kRight) * -1;
 
-    m_LeftShooter.set(ControlMode.PercentOutput,motorSpeed);
-    //m_RightShooter.set(ControlMode.PercentOutput,motorSpeed);
-
+    // Collector - Hooked to X and B
+    // If X collect in
     if (m_Operator.getXButton() == true){
       System.out.println("X collector should run");
       m_collectorMotor.set(-0.25);
-
+    }
+    // If 
+    else if (m_Operator.getBButton() == true) {
+      m_collectorMotor.set(0.50); // spit ball away
     }
     else{
       m_collectorMotor.stopMotor();
