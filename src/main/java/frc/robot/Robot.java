@@ -54,6 +54,8 @@ public class Robot extends TimedRobot {
   
   final limelight m_limelight = new limelight();
 
+  private AHRS ahrs = new AHRS();
+
   
   @Override
   public void robotInit() {
