@@ -160,11 +160,11 @@ public class Robot extends TimedRobot {
     // If X collect in
     if (m_Operator.getXButton() == true){
       System.out.println("X collector should run");
-      m_collectorMotor.set(-0.25);
+      m_collectorMotor.set(-0.7);
     }
     // If 
     else if (m_Operator.getBButton() == true) {
-      m_collectorMotor.set(0.50); // spit ball away
+      m_collectorMotor.set(0.70); // spit ball away
     }
     else{
       m_collectorMotor.stopMotor();
