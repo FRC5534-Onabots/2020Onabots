@@ -34,4 +34,8 @@ public class Const {
     public static final int kDriverXBoxPort = 0;
     public static final int kOperXBoxPort = 1;
 
+    public static final double kLimeLightHeight = 0.0;
+    public static final double kLimeLightAngle = 0.0;
+    public static final double kTargetHeight = 0.0;
+
 }
