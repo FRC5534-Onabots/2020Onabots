@@ -158,10 +158,10 @@ public class Robot extends TimedRobot {
 
     // Shooter - Hooked to Operator left and right trigger
     if (m_Operator.getTriggerAxis(Hand.kLeft) != 0){
-    motorSpeed = m_Operator.getTriggerAxis(Hand.kLeft) * -1;
+      motorSpeed = m_Operator.getTriggerAxis(Hand.kLeft) * -1; //
     }
     else if (m_Operator.getTriggerAxis(Hand.kRight) != 0){
-    motorSpeed = m_Operator.getTriggerAxis(Hand.kRight);
+      motorSpeed = 0.30; // Run shooter backwards at 30%
     }
     else{
       motorSpeed = 0.0;
