@@ -28,53 +28,29 @@ import edu.wpi.first.wpilibj.DriverStation;
 
 import frc.robot.limelight;
 
+
 /**
  * This is a demo program showing how to use Mecanum control with the RobotDrive
  * class.
  */
 public class Robot extends TimedRobot {
-
-  AHRS ahrs;
-
-  // drive motor controller can id's
-  private static final int kFrontLeftChannel = 5;
-  private static final int kRearLeftChannel = 3;
-  private static final int kFrontRightChannel = 6;
-  private static final int kRearRightChannel = 2;
-
-  // shooter motor controller can id's
-  private static final int kLeftShooterID = 1;
-  private static final int kRightShooterID = 7;
-
-  // lift motor controller can id
-  private static final int kLiftMotorID = 9;
-
-  // collector motor pwm id 
-  private static final int kCollectorPWMPort = 8;
-
-  private static final int kPCMCanID = 15;
-  private static final int kCollectorForwardPort = 0;
-  private static final int kCollectorBackwardPort = 1;
-
-  private static final int kDriverXBoxPort = 0;
-  private static final int kOperXBoxPort = 1;
-
+  
   private MecanumDrive m_robotDrive;
 
   private XboxController m_Driver;
   private XboxController m_Operator;
 
-  private VictorSPX m_LeftShooter = new VictorSPX(kLeftShooterID);
-  private VictorSPX m_RightShooter = new VictorSPX(kRightShooterID);
+  private VictorSPX m_LeftShooter = new VictorSPX(Const.kLeftShooterID);
+  private VictorSPX m_RightShooter = new VictorSPX(Const.kRightShooterID);
 
-  private PWMVictorSPX m_liftMotor = new PWMVictorSPX(kLiftMotorID);
-  private PWMVictorSPX m_collectorMotor = new PWMVictorSPX(kCollectorPWMPort);
+  private PWMVictorSPX m_liftMotor = new PWMVictorSPX(Const.kLiftMotorID);
+  private PWMVictorSPX m_collectorMotor = new PWMVictorSPX(Const.kCollectorPWMPort);
 
   private double motorSpeed;
 
   
   final Compressor m_compressor = new Compressor();
-  final DoubleSolenoid m_CollectorArm  = new DoubleSolenoid(kPCMCanID,kCollectorForwardPort, kCollectorBackwardPort);
+  final DoubleSolenoid m_CollectorArm  = new DoubleSolenoid(Const.kPCMCanID,Const.kCollectorForwardPort, Const.kCollectorBackwardPort);
   
   final limelight m_limelight = new limelight();
 
@@ -96,15 +72,15 @@ public class Robot extends TimedRobot {
 
     // create the talonSRX motor controller objects
 
-    final WPI_TalonSRX frontLeft = new WPI_TalonSRX(kFrontLeftChannel);
-    final WPI_TalonSRX rearLeft = new WPI_TalonSRX(kRearLeftChannel);
-    final WPI_TalonSRX frontRight = new WPI_TalonSRX(kFrontRightChannel);
-    final WPI_TalonSRX rearRight = new WPI_TalonSRX(kRearRightChannel);
+    final WPI_TalonSRX frontLeft = new WPI_TalonSRX(Const.kFrontLeftChannel);
+    final WPI_TalonSRX rearLeft = new WPI_TalonSRX(Const.kRearLeftChannel);
+    final WPI_TalonSRX frontRight = new WPI_TalonSRX(Const.kFrontRightChannel);
+    final WPI_TalonSRX rearRight = new WPI_TalonSRX(Const.kRearRightChannel);
 
     //create the victorSPX motor controller objects
-    final VictorSPX m_LeftShooter = new VictorSPX(kLeftShooterID);
-    final VictorSPX m_RightShooter = new VictorSPX(kRightShooterID);
-    final VictorSPX m_liftMotor = new VictorSPX(kLiftMotorID);
+    final VictorSPX m_LeftShooter = new VictorSPX(Const.kLeftShooterID);
+    final VictorSPX m_RightShooter = new VictorSPX(Const.kRightShooterID);
+    final VictorSPX m_liftMotor = new VictorSPX(Const.kLiftMotorID);
  
     frontLeft.setNeutralMode(NeutralMode.Brake);
     rearLeft.setNeutralMode(NeutralMode.Brake);
@@ -128,8 +104,8 @@ public class Robot extends TimedRobot {
     //m_robotDrive = new MecanumDrive(frontLeft, rearLeft, frontRight, rearRight);
 
     m_robotDrive = new MecanumDrive(frontLeft, rearLeft, frontRight, rearRight);
-    m_Driver = new XboxController(kDriverXBoxPort);
-    m_Operator = new XboxController(kOperXBoxPort);
+    m_Driver = new XboxController(Const.kDriverXBoxPort);
+    m_Operator = new XboxController(Const.kOperXBoxPort);
 
     m_LeftShooter.set(ControlMode.PercentOutput,0);
     m_RightShooter.set(ControlMode.PercentOutput,0);
