@@ -156,9 +156,17 @@ public class Robot extends TimedRobot {
       m_limelight.setLEDMode(m_limelight.kLedModePipeLineSetting);
     }
 
-    // Shooter - Hooked to Operator left trigger 
+    // Shooter - Hooked to Operator left and right trigger
+    if (m_Operator.getTriggerAxis(Hand.kLeft) != 0){
     motorSpeed = m_Operator.getTriggerAxis(Hand.kLeft) * -1;
+    }
+    else if (m_Operator.getTriggerAxis(Hand.kRight) != 0){
     motorSpeed = m_Operator.getTriggerAxis(Hand.kRight);
+    }
+    else{
+      motorSpeed = 0.0;
+    }
+    
     m_LeftShooter.set(ControlMode.PercentOutput,motorSpeed);
 
     
