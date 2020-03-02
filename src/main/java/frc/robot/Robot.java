@@ -180,7 +180,11 @@ public class Robot extends TimedRobot {
 
     // Shooter - Hooked to Operator left trigger 
     motorSpeed = m_Operator.getTriggerAxis(Hand.kLeft) * -1;
+    motorSpeed = m_Operator.getTriggerAxis(Hand.kRight);
     m_LeftShooter.set(ControlMode.PercentOutput,motorSpeed);
+
+    
+
     if(m_Operator.getBumper(Hand.kLeft) == true){
       m_liftMotor.set(-0.35);
     } else {
@@ -198,7 +202,7 @@ public class Robot extends TimedRobot {
       m_liftMotor.stopMotor();
     }
 
-    motorSpeed = m_Operator.getTriggerAxis(Hand.kRight) * -1;
+    
 
     // Collector - Hooked to X and B
     // If X collect in
@@ -212,6 +216,18 @@ public class Robot extends TimedRobot {
     }
     else{
       m_collectorMotor.stopMotor();
+    }
+
+    // Collector cgo down
+    if(m_Operator.getYButtonPressed() == true){
+      System.out.println("Y Button Pressed");
+      m_CollectorArm.set(Value.kForward);
+     
+    }
+    // Collector go up
+    if(m_Operator.getAButtonPressed() == true){
+      System.out.println("X Button Pressed");
+      m_CollectorArm.set(Value.kReverse);
     }
   
                                 
