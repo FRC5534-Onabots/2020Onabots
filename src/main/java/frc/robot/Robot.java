@@ -150,6 +150,8 @@ public class Robot extends TimedRobot {
   } // ********************** teleopInit() ************************
   
   
+  
+  
   @Override
   public void teleopPeriodic() {
     
@@ -211,10 +213,7 @@ public class Robot extends TimedRobot {
     else{
       m_collectorMotor.stopMotor();
     }
-
-
- 
-    
+  
                                 
   }// ********************* End teleopPeriodic ***********************
 
