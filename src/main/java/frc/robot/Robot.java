@@ -7,6 +7,9 @@
 
 package frc.robot;
 
+import com.kauailabs.navx.frc.AHRS;
+import edu.wpi.first.wpilibj.SPI;
+
 import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.NeutralMode;
 import com.ctre.phoenix.motorcontrol.can.VictorSPX;
@@ -20,6 +23,8 @@ import edu.wpi.first.wpilibj.Compressor;
 import edu.wpi.first.wpilibj.DoubleSolenoid;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.drive.MecanumDrive;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import edu.wpi.first.wpilibj.DriverStation;
 
 import frc.robot.limelight;
 
@@ -28,7 +33,10 @@ import frc.robot.limelight;
  * class.
  */
 public class Robot extends TimedRobot {
-// drive motor controller can id's
+
+  AHRS ahrs;
+
+  // drive motor controller can id's
   private static final int kFrontLeftChannel = 5;
   private static final int kRearLeftChannel = 3;
   private static final int kFrontRightChannel = 6;
@@ -69,9 +77,22 @@ public class Robot extends TimedRobot {
   final DoubleSolenoid m_CollectorArm  = new DoubleSolenoid(kPCMCanID,kCollectorForwardPort, kCollectorBackwardPort);
   
   final limelight m_limelight = new limelight();
+
   
   @Override
   public void robotInit() {
+
+    try {
+      /***********************************************************************
+       * navX-MXP: - Communication via RoboRIO MXP (SPI, I2C) and USB. - See
+       * http://navx-mxp.kauailabs.com/guidance/selecting-an-interface.
+
+       ************************************************************************/
+      ahrs = new AHRS(SPI.Port.kMXP);
+    } 
+    catch (RuntimeException ex) {
+      DriverStation.reportError("Error instantiating navX MXP:  " + ex.getMessage(), true);
+    }
 
     // create the talonSRX motor controller objects
 
@@ -209,7 +230,7 @@ public class Robot extends TimedRobot {
 
   @Override
   public void testPeriodic(){
-
+/** 
     if(m_Operator.getYButtonPressed() == true){
       System.out.println("Y Button Pressed");
       m_CollectorArm.set(Value.kForward);
@@ -246,7 +267,38 @@ public class Robot extends TimedRobot {
     else{
       m_collectorMotor.stopMotor();
     }
+    */
 
+    // Testing driving on a gyro heading
+
+      if (m_Driver.getBumper(Hand.kRight)) {
+        ahrs.reset();
+      }
+      try {
+        /* Use the joystick X axis for lateral movement, */
+        /* Y axis for forward movement, and Z axis for rotation. */
+        /* Use navX MXP yaw angle to define Field-centric transform */
+        SmartDashboard.putBoolean("IMU_Connected", ahrs.isConnected());
+        SmartDashboard.putBoolean("IMU_IsCalibrating", ahrs.isCalibrating());
+        SmartDashboard.putNumber("IMU_CompassHeading", ahrs.getCompassHeading());
+        SmartDashboard.putNumber("IMU_TotalYaw", ahrs.getAngle());
+        SmartDashboard.putNumber("IMU_YawRateDPS", ahrs.getRate());
+    
+        /* Display Processed Acceleration Data (Linear Acceleration, Motion Detect) */
+    
+        SmartDashboard.putNumber("IMU_Accel_X", ahrs.getWorldLinearAccelX());
+        SmartDashboard.putNumber("IMU_Accel_Y", ahrs.getWorldLinearAccelY());
+        SmartDashboard.putBoolean("IMU_IsMoving", ahrs.isMoving());
+        SmartDashboard.putBoolean("IMU_IsRotating", ahrs.isRotating());
+
+        
+        m_robotDrive.driveCartesian(m_Driver.getX(Hand.kRight)* -1,
+                                    m_Driver.getY(Hand.kLeft)* -1,
+                                    m_Driver.getX(Hand.kLeft),
+                                    ahrs.getAngle());
+      } catch (RuntimeException ex) {
+        DriverStation.reportError("Error communicating with drive system:  " + ex.getMessage(), true);
+      }
 
 
     } // ********************** end testPeriodic() *********************
